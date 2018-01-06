@@ -75,20 +75,22 @@ const calculateCY = y => basicNoteDiameter * (y + 1);
 const calculateSvgWith = () => calculateCX(state.difficulty.columns);
 const calculateSvgHeight = () => calculateCY(state.lines);
 
-const Placeholder = ({x, y, type, setNoteType}) => (
+const getHandler = (x, y, actions) => (e => actions.setNoteType({x : x, y: y}));
+
+const Placeholder = ({x, y, type, actions}) => (
     <circle cx={calculateCX(x)} 
         cy={calculateCY(y)}
         r={basicNoteDiameter / 2}
         class={type.class}
-        onclick={e => setNoteType({x : x, y: y})}/>
+        onclick={getHandler(x, y, actions)}/>
 );
 
-const SingleNote = ({x, y, type, setNoteType}) => (
+const SingleNote = ({x, y, type, actions}) => (
     <circle cx={calculateCX(x)} 
         cy={calculateCY(y)}
         r={basicNoteDiameter / 3}
         class={type.class}
-        onclick={e => setNoteType({x : x, y: y})}/>
+        onclick={getHandler(x, y, actions)}/>
 );
 
 const renderNote = (point, actions) => {
@@ -98,14 +100,14 @@ const renderNote = (point, actions) => {
             <SingleNote x={point.x}
                 y={point.y}
                 type={point.type}
-                setNoteType={actions.setNoteType} />
+                actions={actions} />
             );
         default: 
             return (
             <Placeholder x={point.x}
                 y={point.y}
                 type={point.type}
-                setNoteType={actions.setNoteType} />
+                actions={actions} />
             );
     }
 };
