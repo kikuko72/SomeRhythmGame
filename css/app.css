@@ -1,9 +1,15 @@
 circle.placeholder {
-    fill: none;
+    fill: #fff;
 }
 
 .showPlaceholder circle.placeholder {
     stroke: #000;
     stroke-width: 1px;
     stroke-dasharray: 3;
+}
+
+circle.normal {
+    fill: #f66;
+    stroke: #000;
+    stroke-width: 1px;
 }
