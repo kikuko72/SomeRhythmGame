@@ -41,6 +41,7 @@ const state = {
   , lines: initialLines
   , notes: initNotes(difficultyState.columns, initialLines)
   , editType: noteType.single
+  , showPlaceholder: true
 }
 
 const actions = {
@@ -48,6 +49,9 @@ const actions = {
         const value = parseInt(event.target.value);
         return {editType: noteTypes.filter(note => note.value === value)[0]}
     }
+  , togglePlaceholderVisibility: () => state => {
+        return { showPlaceholder: !state.showPlaceholder };
+  }
 }
 
 const calculateCX = x => basicNoteDiameter * (x * 2 + 1);
@@ -57,13 +61,15 @@ const calculateSvgHeight = () => calculateCY(state.lines);
 
 const view = (state, actions) => (
   <div>
-    <svg id="score" width={calculateSvgWith()} height={calculateSvgHeight()} viewBox={'0 0 ' + calculateSvgWith() + ' ' + calculateSvgHeight()}
+    <svg id="score" class={state.showPlaceholder ? 'showPlaceholder' : ''} width={calculateSvgWith()} height={calculateSvgHeight()} viewBox={'0 0 ' + calculateSvgWith() + ' ' + calculateSvgHeight()}
          xmlns="http://www.w3.org/2000/svg" version="1.1">
          {state.notes.map(columns => columns.map(point => <circle cx={calculateCX(point.x)} cy={calculateCY(point.y)} r={basicNoteDiameter / 2} class={point.type.class}/>))}
     </svg>
     <select id="editType" onchange={actions.changeEditType} value={state.editType.value}>
       {noteTypes.map(note => <option value={note.value}>{note.label}</option>)}
     </select>
+    <input id="showPlaceholderCheck" type="checkbox" defaultChecked={state.showPlaceholder} onchange={actions.togglePlaceholderVisibility}/>
+    <label for="showPlaceholderCheck">ノーツが無い場所にプレースホルダーを表示する</label>
   </div>
 )
 

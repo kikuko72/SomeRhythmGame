@@ -1,0 +1,9 @@
+circle.placeholder {
+    fill: none;
+}
+
+.showPlaceholder circle.placeholder {
+    stroke: #000;
+    stroke-width: 1px;
+    stroke-dasharray: 3;
+}
