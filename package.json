@@ -1,0 +1,31 @@
+{
+  "name": "SomeRhythmGame",
+  "version": "1.0.0",
+  "description": "某リズムゲームの譜面を作成するだけのものです",
+  "main": "index.js",
+  "dependencies": {
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "hyperapp": "^1.0.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babelify": "^8.0.0",
+    "browserify": "^15.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify ./src/app.js -t babelify --outfile ./lib/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kikuko72/SomeRhythmGame.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kikuko72/SomeRhythmGame/issues"
+  },
+  "homepage": "https://github.com/kikuko72/SomeRhythmGame#readme"
+}
