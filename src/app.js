@@ -75,6 +75,13 @@ const calculateCY = y => basicNoteDiameter * (y + 1);
 const calculateSvgWith = () => calculateCX(state.difficulty.columns);
 const calculateSvgHeight = () => calculateCY(state.lines);
 
+const Note = ({x, y, type, action, size}) => (
+    <circle cx={calculateCX(x)} 
+        cy={calculateCY(y)}
+        r={size * basicNoteDiameter / 3}
+        class={type.class}
+        onclick={getHandler(x, y, actions)}/>
+);
 const getHandler = (x, y, actions) => (e => actions.setNoteType({x : x, y: y}));
 
 const Placeholder = ({x, y, type, actions}) => (
@@ -86,11 +93,19 @@ const Placeholder = ({x, y, type, actions}) => (
 );
 
 const SingleNote = ({x, y, type, actions}) => (
-    <circle cx={calculateCX(x)} 
-        cy={calculateCY(y)}
-        r={basicNoteDiameter / 3}
-        class={type.class}
-        onclick={getHandler(x, y, actions)}/>
+    <Note x={x}
+      y={y} 
+      type={type}
+      actions={actions}
+      size={0.8} />
+);
+
+const LargeNote = ({x, y, type, actions}) => (
+    <Note x={x}
+      y={y} 
+      type={type}
+      actions={actions}
+      size={1.3} />
 );
 
 const renderNote = (point, actions) => {
@@ -98,6 +113,13 @@ const renderNote = (point, actions) => {
         case noteType.single.value:
             return (
             <SingleNote x={point.x}
+                y={point.y}
+                type={point.type}
+                actions={actions} />
+            );
+        case noteType.large.value:
+            return (
+            <LargeNote x={point.x}
                 y={point.y}
                 type={point.type}
                 actions={actions} />

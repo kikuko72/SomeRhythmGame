@@ -13,3 +13,9 @@ circle.normal {
     stroke: #000;
     stroke-width: 1px;
 }
+
+circle.large {
+    fill: #f66;
+    stroke: #000;
+    stroke-width: 2px;
+}
