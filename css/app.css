@@ -50,3 +50,11 @@ line.longNotes {
     stroke-width: 15px;
     stroke-linecap: round;
 }
+
+#editPanel {
+    position: fixed;
+}
+#score {
+    position: fixed;
+    left: 25rem;
+}

@@ -317,7 +317,7 @@ const difficulty = {
 }
 
 const noteType = {
-      placeholder : { label : 'なし'         , value: 0, class: 'placeholder'}
+      placeholder : { label : 'なし(削除)'    , value: 0, class: 'placeholder'}
     , single      : { label : '単独ノーツ'    , value: 1, class: 'normal'     }
     , large       : { label : '単独ノーツ(大)', value: 2, class: 'large'      }     
     , right       : { label : '右フリック'    , value: 3, class: 'right'      }
@@ -646,18 +646,27 @@ const LinkEditMessage = ({isEditting, isStart}) => {
 
 const view = (state, actions) => (
   <div>
+    <div id="editPanel">
+      <div>
+        <input id="showPlaceholderCheck" type="checkbox" defaultChecked={state.showPlaceholder} onchange={actions.togglePlaceholderVisibility}/>
+        <label for="showPlaceholderCheck">ノーツが無い場所にプレースホルダーを表示する</label>
+      </div>
+      <div>
+        <span>作成するノーツの種類：</span>
+        <select id="editType" onchange={actions.changeEditType} value={state.editType.value}>
+          {noteTypes.map(note => <option value={note.value}>{note.label}</option>)}
+        </select>
+      </div>
+      <div>
+        <LinkEditButton isEditting={state.linkEdit.isEditting} actions={actions} />
+        <LinkEditMessage isEditting={state.linkEdit.isEditting} isStart={state.linkEdit.startPoint === null} />
+      </div>
+    </div>
     <svg id="score" class={state.showPlaceholder ? 'showPlaceholder' : ''} width={calculateSvgWith()} height={calculateSvgHeight()} viewBox={'0 0 ' + calculateSvgWith() + ' ' + calculateSvgHeight()}
          xmlns="http://www.w3.org/2000/svg" version="1.1">
          {state.linkNotes.map((columns, columnIndex) => columns.map((point, lineIndex) => renderLink(columnIndex, lineIndex, point)))}
          {state.notes.map(columns => columns.map(point => renderNote(point, actions, state)))}
     </svg>
-    <select id="editType" onchange={actions.changeEditType} value={state.editType.value}>
-      {noteTypes.map(note => <option value={note.value}>{note.label}</option>)}
-    </select>
-    <LinkEditButton isEditting={state.linkEdit.isEditting} actions={actions} />
-    <LinkEditMessage isEditting={state.linkEdit.isEditting} isStart={state.linkEdit.startPoint === null} />
-    <input id="showPlaceholderCheck" type="checkbox" defaultChecked={state.showPlaceholder} onchange={actions.togglePlaceholderVisibility}/>
-    <label for="showPlaceholderCheck">ノーツが無い場所にプレースホルダーを表示する</label>
   </div>
 );
 
