@@ -755,9 +755,32 @@ const LinkEditMessage = ({isEditting, isStart}) => {
     return <div>長押しの終点となるノーツを指定してください</div>
 };
 
+const downloadAsImage = () => {
+    const svg = document.getElementById('score');
+    const svgData = new XMLSerializer().serializeToString(svg);
+    let canvas = document.createElement("canvas");
+    canvas.width = svg.width.baseVal.value;
+    canvas.height = svg.height.baseVal.value;
+
+    const ctx = canvas.getContext("2d");
+    let image = new Image;
+    image.onload = function(){
+        ctx.drawImage( image, 0, 0 );
+        let a = document.getElementById('download');
+        const data = canvas.toDataURL("image/png");
+        console.log(data);
+        a.href = data;
+    }
+    const src = "data:image/svg+xml;charset=utf-8;base64," + btoa(unescape(encodeURIComponent(svgData)));
+    image.src = src;
+};
+
 const view = (state, actions) => (
   <div>
     <div id="editPanel">
+      <div id="downloadArea">
+        <a id="download" download="image.png">画像のダウンロード</a>
+      </div>
       <div>
         <input id="showPlaceholderCheck" type="checkbox" defaultChecked={state.showPlaceholder} onchange={actions.togglePlaceholderVisibility}/>
         <label for="showPlaceholderCheck">ノーツが無い場所にプレースホルダーを表示する</label>
@@ -778,7 +801,8 @@ const view = (state, actions) => (
       </div>
     </div>
     <svg id="score" class={state.showPlaceholder ? 'showPlaceholder' : ''} width={calculateSvgWith(state)} height={calculateSvgHeight(state)} viewBox={'0 0 ' + calculateSvgWith(state) + ' ' + calculateSvgHeight(state)}
-         xmlns="http://www.w3.org/2000/svg" version="1.1">
+         xmlns="http://www.w3.org/2000/svg" version="1.1"
+         onupdate={(element, oldProps) => downloadAsImage()}>
          {state.linkNotes.map((columns, columnIndex) => columns.map((point, lineIndex) => renderLink(columnIndex, lineIndex, point)))}
          {state.notes.map(columns => columns.map(point => renderNote(point, actions, state)))}
     </svg>
