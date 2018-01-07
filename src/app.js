@@ -359,6 +359,8 @@ const updateNotes = (notes, editType, x, y) => notes.map((columns, columnIndex) 
 const difficultyState = difficulty.MM;
 const initialLines = 8;
 const basicNoteDiameter = 32
+const smallNoteSize = 0.8 * basicNoteDiameter / 3;
+const largeNoteSize = 1.3 * basicNoteDiameter / 3;
 
 const state = {
     difficulty: difficultyState
@@ -386,17 +388,18 @@ const calculateCY = y => basicNoteDiameter * (y + 1);
 const calculateSvgWith = () => calculateCX(state.difficulty.columns);
 const calculateSvgHeight = () => calculateCY(state.lines);
 
-const Note = ({x, y, type, action, size}) => (
+const Note = ({x, y, type, size}) => (
     <circle cx={calculateCX(x)} 
         cy={calculateCY(y)}
-        r={size * basicNoteDiameter / 3}
+        r={size}
         class={type.class}
-        onclick={getHandler(x, y, actions)}/>
+        />
 );
 const getHandler = (x, y, actions) => (e => actions.setNoteType({x : x, y: y}));
 
 const Placeholder = ({x, y, type, actions}) => (
-    <circle cx={calculateCX(x)} 
+    <circle id={'x:' + x +'-y:' + y}
+        cx={calculateCX(x)} 
         cy={calculateCY(y)}
         r={basicNoteDiameter / 2}
         class={type.class}
@@ -404,19 +407,43 @@ const Placeholder = ({x, y, type, actions}) => (
 );
 
 const SingleNote = ({x, y, type, actions}) => (
-    <Note x={x}
-      y={y} 
-      type={type}
-      actions={actions}
-      size={0.8} />
+    <g onclick={getHandler(x, y, actions)}>
+      <Note x={x}
+        y={y} 
+        type={type}
+        size={smallNoteSize} />
+    </g>
 );
 
 const LargeNote = ({x, y, type, actions}) => (
-    <Note x={x}
-      y={y} 
-      type={type}
-      actions={actions}
-      size={1.3} />
+    <g onclick={getHandler(x, y, actions)}>
+      <Note x={x}
+        y={y} 
+        type={type}
+        actions={actions}
+        size={largeNoteSize} />
+    </g>
+);
+
+const RightNote = ({x, y, type, actions}) => (
+    <g onclick={getHandler(x, y, actions)}>
+      <Note x={x}
+        y={y} 
+        type={type}
+        size={largeNoteSize} />
+      <line x1={calculateCX(x) - largeNoteSize * 0.7}
+        y1={calculateCY(y)}
+        x2={calculateCX(x) + largeNoteSize * 0.7}
+        y2={calculateCY(y)}/>
+      <line x1={calculateCX(x) + largeNoteSize * 0.7}
+        y1={calculateCY(y)}
+        x2={calculateCX(x)}
+        y2={calculateCY(y) - largeNoteSize * 0.7}/>
+      <line x1={calculateCX(x) + largeNoteSize * 0.7}
+        y1={calculateCY(y)}
+        x2={calculateCX(x)}
+        y2={calculateCY(y) + largeNoteSize * 0.7}/>
+    </g>
 );
 
 const renderNote = (point, actions) => {
@@ -431,6 +458,13 @@ const renderNote = (point, actions) => {
         case noteType.large.value:
             return (
             <LargeNote x={point.x}
+                y={point.y}
+                type={point.type}
+                actions={actions} />
+            );
+        case noteType.right.value:
+            return (
+            <RightNote x={point.x}
                 y={point.y}
                 type={point.type}
                 actions={actions} />
