@@ -445,6 +445,46 @@ const RightNote = ({x, y, type, actions}) => (
         y2={calculateCY(y) + largeNoteSize * 0.7}/>
     </g>
 );
+const LeftNote = ({x, y, type, actions}) => (
+    <g onclick={getHandler(x, y, actions)}>
+      <Note x={x}
+        y={y} 
+        type={type}
+        size={largeNoteSize} />
+      <line x1={calculateCX(x) - largeNoteSize * 0.7}
+        y1={calculateCY(y)}
+        x2={calculateCX(x) + largeNoteSize * 0.7}
+        y2={calculateCY(y)}/>
+      <line x1={calculateCX(x) - largeNoteSize * 0.7}
+        y1={calculateCY(y)}
+        x2={calculateCX(x)}
+        y2={calculateCY(y) - largeNoteSize * 0.7}/>
+      <line x1={calculateCX(x) - largeNoteSize * 0.7}
+        y1={calculateCY(y)}
+        x2={calculateCX(x)}
+        y2={calculateCY(y) + largeNoteSize * 0.7}/>
+    </g>
+);
+const UpNote = ({x, y, type, actions}) => (
+    <g onclick={getHandler(x, y, actions)}>
+      <Note x={x}
+        y={y} 
+        type={type}
+        size={largeNoteSize} />
+      <line x1={calculateCX(x)}
+        y1={calculateCY(y) - largeNoteSize * 0.7}
+        x2={calculateCX(x)}
+        y2={calculateCY(y) + largeNoteSize * 0.7}/>
+      <line x1={calculateCX(x)}
+        y1={calculateCY(y) - largeNoteSize * 0.7}
+        x2={calculateCX(x) + largeNoteSize * 0.7}
+        y2={calculateCY(y)}/>
+      <line x1={calculateCX(x)}
+        y1={calculateCY(y) - largeNoteSize * 0.7}
+        x2={calculateCX(x) - largeNoteSize * 0.7}
+        y2={calculateCY(y)}/>
+    </g>
+);
 
 const renderNote = (point, actions) => {
     switch(point.type.value) {
@@ -465,6 +505,20 @@ const renderNote = (point, actions) => {
         case noteType.right.value:
             return (
             <RightNote x={point.x}
+                y={point.y}
+                type={point.type}
+                actions={actions} />
+            );
+        case noteType.left.value:
+            return (
+            <LeftNote x={point.x}
+                y={point.y}
+                type={point.type}
+                actions={actions} />
+            );
+        case noteType.up.value:
+            return (
+            <UpNote x={point.x}
                 y={point.y}
                 type={point.type}
                 actions={actions} />

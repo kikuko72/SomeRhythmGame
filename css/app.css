@@ -19,3 +19,27 @@ circle.large {
     stroke: #000;
     stroke-width: 2px;
 }
+
+circle.right {
+    fill: #da0;
+    stroke: #000;
+    stroke-width: 2px;
+}
+
+circle.left {
+    fill: #0ad;
+    stroke: #000;
+    stroke-width: 2px;
+}
+
+circle.up {
+    fill: #494;
+    stroke: #000;
+    stroke-width: 2px;
+}
+
+line {
+    stroke: #fff;
+    stroke-width: 3px;
+    stroke-linecap: round;
+}
