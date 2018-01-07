@@ -323,7 +323,6 @@ const noteType = {
     , right       : { label : '右フリック'    , value: 3, class: 'right'      }
     , left        : { label : '左フリック'    , value: 4, class: 'left'       }
     , up          : { label : '上フリック'    , value: 5, class: 'up'         }
-    , linked      : { label : '連結ノーツ'    , value: 6, class: 'normal'     }
 }
 
 const noteTypes = Object.keys(noteType).map(key => noteType[key]);
@@ -343,6 +342,17 @@ const initNotes = (columns, lines) => {
     return notes;
 }
 
+const initLinkNotes = (columns, lines) => {
+    let notes = [];
+    for (let columnIndex = 0; columnIndex < columns; columnIndex++) {
+        notes[columnIndex] = [];
+        for (let lineIndex = 0; lineIndex < lines; lineIndex++) {
+            notes[columnIndex][lineIndex] = null;
+        }
+    }
+    return notes;
+}
+
 const updateNotes = (notes, editType, x, y) => notes.map((columns, columnIndex) => columns.map(
     (point, lineIndex) => {
         if (columnIndex === x && lineIndex === y) {
@@ -356,6 +366,44 @@ const updateNotes = (notes, editType, x, y) => notes.map((columns, columnIndex) 
     }
 ));
 
+const createLink = (linkNotes, x1, y1, x2, y2) => linkNotes.map((columns, columnIndex) => columns.map(
+    (point, lineIndex) => {
+        if (columnIndex === x1 && lineIndex === y1) {
+            return {
+                refX: x2
+                , refY: y2
+                , isStart: true
+            }
+        } else if (columnIndex === x2 && lineIndex === y2) {
+            return {
+                refX: x1
+                , refY: y1
+                , isStart: false
+            }
+        }
+        return point;
+    }
+));
+
+const deleteLink = (linkNotes, x, y) => {
+    const refPoint = linkNotes[x][y];
+    if (refPoint === null) {
+        return linkNotes;
+    }
+    const refX = refPoint.refX;
+    const refY = refPoint.refY;
+    return linkNotes.map((columns, columnIndex) => columns.map(
+        (point, lineIndex) => {
+            if (columnIndex === x && lineIndex === y) {
+                return null;
+            } else if (columnIndex === refX && lineIndex === refY) {
+                return null;
+            }
+            return point;
+        }
+    ));
+};
+
 const difficultyState = difficulty.MM;
 const initialLines = 8;
 const basicNoteDiameter = 32
@@ -366,7 +414,9 @@ const state = {
     difficulty: difficultyState
   , lines: initialLines
   , notes: initNotes(difficultyState.columns, initialLines)
+  , linkNotes: initLinkNotes(difficultyState.columns, initialLines)
   , editType: noteType.single
+  , linkEdit: {isEditting: false, startPoint: null} 
   , showPlaceholder: true
 }
 
@@ -379,7 +429,22 @@ const actions = {
         return { showPlaceholder: !state.showPlaceholder };
   }
   , setNoteType: ({x, y}) => state => {
-        return { notes: updateNotes(state.notes, state.editType, x, y) };
+        return { notes: updateNotes(state.notes, state.editType, x, y), linkNotes: deleteLink(state.linkNotes, x, y) };
+  }
+  , startLinkEdit: () => state => {
+        return { linkEdit: {isEditting: true, startPoint: null} };
+  }
+  , abortLinkEdit: () => state => {
+        return { linkEdit: {isEditting: false, startPoint: null} };
+  }
+  , setLinkStartPoint: ({x, y}) => state => {
+        return { linkEdit: {isEditting: true, startPoint: {x, y}} };
+  }
+  , finishLinkEdit: ({x1, y1, x2, y2}) => state => {
+        if (y1 === y2) {
+            return {};
+        }
+        return { linkNotes: createLink(state.linkNotes, x1, y1, x2, y2), linkEdit: {isEditting: false, startPoint: null} };
   }
 }
 
@@ -395,7 +460,15 @@ const Note = ({x, y, type, size}) => (
         class={type.class}
         />
 );
-const getHandler = (x, y, actions) => (e => actions.setNoteType({x : x, y: y}));
+const getHandler = (x, y, actions, state) => {
+    if (!state.linkEdit.isEditting) {
+        return e => actions.setNoteType({x: x, y: y});
+    }
+    if (state.linkEdit.startPoint === null) {
+        return e => actions.setLinkStartPoint({x: x, y: y});
+    }
+    return e=> actions.finishLinkEdit({x1: state.linkEdit.startPoint.x, y1: state.linkEdit.startPoint.y, x2: x, y2: y});
+}
 
 const Placeholder = ({x, y, type, actions}) => (
     <circle id={'x:' + x +'-y:' + y}
@@ -403,11 +476,11 @@ const Placeholder = ({x, y, type, actions}) => (
         cy={calculateCY(y)}
         r={basicNoteDiameter / 2}
         class={type.class}
-        onclick={getHandler(x, y, actions)}/>
+        onclick={(e => actions.setNoteType({x: x, y: y}))}/>
 );
 
-const SingleNote = ({x, y, type, actions}) => (
-    <g onclick={getHandler(x, y, actions)}>
+const SingleNote = ({x, y, type, actions, state}) => (
+    <g onclick={getHandler(x, y, actions, state)}>
       <Note x={x}
         y={y} 
         type={type}
@@ -415,8 +488,8 @@ const SingleNote = ({x, y, type, actions}) => (
     </g>
 );
 
-const LargeNote = ({x, y, type, actions}) => (
-    <g onclick={getHandler(x, y, actions)}>
+const LargeNote = ({x, y, type, actions, state}) => (
+    <g onclick={getHandler(x, y, actions, state)}>
       <Note x={x}
         y={y} 
         type={type}
@@ -425,8 +498,8 @@ const LargeNote = ({x, y, type, actions}) => (
     </g>
 );
 
-const RightNote = ({x, y, type, actions}) => (
-    <g onclick={getHandler(x, y, actions)}>
+const RightNote = ({x, y, type, actions, state}) => (
+    <g onclick={getHandler(x, y, actions, state)}>
       <Note x={x}
         y={y} 
         type={type}
@@ -445,8 +518,8 @@ const RightNote = ({x, y, type, actions}) => (
         y2={calculateCY(y) + largeNoteSize * 0.7}/>
     </g>
 );
-const LeftNote = ({x, y, type, actions}) => (
-    <g onclick={getHandler(x, y, actions)}>
+const LeftNote = ({x, y, type, actions, state}) => (
+    <g onclick={getHandler(x, y, actions, state)}>
       <Note x={x}
         y={y} 
         type={type}
@@ -465,8 +538,8 @@ const LeftNote = ({x, y, type, actions}) => (
         y2={calculateCY(y) + largeNoteSize * 0.7}/>
     </g>
 );
-const UpNote = ({x, y, type, actions}) => (
-    <g onclick={getHandler(x, y, actions)}>
+const UpNote = ({x, y, type, actions, state}) => (
+    <g onclick={getHandler(x, y, actions, state)}>
       <Note x={x}
         y={y} 
         type={type}
@@ -486,62 +559,93 @@ const UpNote = ({x, y, type, actions}) => (
     </g>
 );
 
-const renderNote = (point, actions) => {
+const renderNote = (point, actions, state) => {
     switch(point.type.value) {
         case noteType.single.value:
             return (
             <SingleNote x={point.x}
                 y={point.y}
                 type={point.type}
-                actions={actions} />
+                actions={actions} 
+                state={state}
+                />
             );
         case noteType.large.value:
             return (
             <LargeNote x={point.x}
                 y={point.y}
                 type={point.type}
-                actions={actions} />
+                actions={actions} 
+                state={state}
+                />
             );
         case noteType.right.value:
             return (
             <RightNote x={point.x}
                 y={point.y}
                 type={point.type}
-                actions={actions} />
+                actions={actions} 
+                state={state}
+                />
             );
         case noteType.left.value:
             return (
             <LeftNote x={point.x}
                 y={point.y}
                 type={point.type}
-                actions={actions} />
+                actions={actions} 
+                state={state}
+                />
             );
         case noteType.up.value:
             return (
             <UpNote x={point.x}
                 y={point.y}
                 type={point.type}
-                actions={actions} />
+                actions={actions} 
+                state={state}
+                />
             );
         default: 
             return (
             <Placeholder x={point.x}
                 y={point.y}
                 type={point.type}
-                actions={actions} />
+                actions={actions} 
+                />
             );
     }
+};
+
+const renderLink = (x, y, point) => {
+    if(point === null || !point.isStart) {
+        return null;
+    }
+    return <line class="longNotes"
+        x1={calculateCX(x)}
+        y1={calculateCY(y)}
+        x2={calculateCX(point.refX)}
+        y2={calculateCY(point.refY)}/>
+};
+
+const LinkEditButton = ({isEditting, actions}) => {
+    if(isEditting) {
+        return <button onclick={actions.abortLinkEdit}>長押しの作成をやめる</button>    
+    }
+    return <button onclick={actions.startLinkEdit}>長押しの作成</button>    
 };
 
 const view = (state, actions) => (
   <div>
     <svg id="score" class={state.showPlaceholder ? 'showPlaceholder' : ''} width={calculateSvgWith()} height={calculateSvgHeight()} viewBox={'0 0 ' + calculateSvgWith() + ' ' + calculateSvgHeight()}
          xmlns="http://www.w3.org/2000/svg" version="1.1">
-         {state.notes.map(columns => columns.map(point => renderNote(point, actions)))}
+         {state.linkNotes.map((columns, columnIndex) => columns.map((point, lineIndex) => renderLink(columnIndex, lineIndex, point)))}
+         {state.notes.map(columns => columns.map(point => renderNote(point, actions, state)))}
     </svg>
     <select id="editType" onchange={actions.changeEditType} value={state.editType.value}>
       {noteTypes.map(note => <option value={note.value}>{note.label}</option>)}
     </select>
+    <LinkEditButton isEditting={state.linkEdit.isEditting} actions={actions} />
     <input id="showPlaceholderCheck" type="checkbox" defaultChecked={state.showPlaceholder} onchange={actions.togglePlaceholderVisibility}/>
     <label for="showPlaceholderCheck">ノーツが無い場所にプレースホルダーを表示する</label>
   </div>

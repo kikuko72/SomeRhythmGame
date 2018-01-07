@@ -1,5 +1,6 @@
 circle.placeholder {
     fill: #fff;
+    fill-opacity: 0;
 }
 
 .showPlaceholder circle.placeholder {
@@ -41,5 +42,11 @@ circle.up {
 line {
     stroke: #fff;
     stroke-width: 3px;
+    stroke-linecap: round;
+}
+
+line.longNotes {
+    stroke: rgb(218, 221, 51);
+    stroke-width: 15px;
     stroke-linecap: round;
 }
