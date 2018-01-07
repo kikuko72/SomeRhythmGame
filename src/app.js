@@ -634,6 +634,15 @@ const LinkEditButton = ({isEditting, actions}) => {
     }
     return <button onclick={actions.startLinkEdit}>長押しの作成</button>    
 };
+const LinkEditMessage = ({isEditting, isStart}) => {
+    if(!isEditting) {
+        return null;
+    }
+    if(isEditting && isStart) {
+        return <div>長押しの始点となるノーツを指定してください</div>
+    }
+    return <div>長押しの終点となるノーツを指定してください</div>
+};
 
 const view = (state, actions) => (
   <div>
@@ -646,6 +655,7 @@ const view = (state, actions) => (
       {noteTypes.map(note => <option value={note.value}>{note.label}</option>)}
     </select>
     <LinkEditButton isEditting={state.linkEdit.isEditting} actions={actions} />
+    <LinkEditMessage isEditting={state.linkEdit.isEditting} isStart={state.linkEdit.startPoint === null} />
     <input id="showPlaceholderCheck" type="checkbox" defaultChecked={state.showPlaceholder} onchange={actions.togglePlaceholderVisibility}/>
     <label for="showPlaceholderCheck">ノーツが無い場所にプレースホルダーを表示する</label>
   </div>
