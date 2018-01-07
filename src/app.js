@@ -404,6 +404,50 @@ const deleteLink = (linkNotes, x, y) => {
     ));
 };
 
+const extendNotes = (notes, increaseLinesCount) => {
+    return notes.map((columns, columnIndex) => {
+        let newColumns = columns.slice(0);
+        for (let lineIndex = columns.length; lineIndex < columns.length + increaseLinesCount; lineIndex++) {
+            newColumns[lineIndex] = {
+                type : noteType.placeholder
+                , x : columnIndex
+                , y : lineIndex
+            }
+        } 
+        return newColumns; 
+    });
+}
+
+const extendLinkNotes = (linkNotes, increaseLinesCount) => {
+    return linkNotes.map(columns => {
+        let newColumns = columns.slice(0);
+        for (let lineIndex = columns.length; lineIndex < columns.length + increaseLinesCount; lineIndex++) {
+            newColumns[lineIndex] = null;
+        }  
+        return newColumns;
+    });
+}
+
+const shrinkNotes = (notes, decreaseLinesCount) => {
+    return notes.map(columns => {
+        return columns.slice(0, columns.length - decreaseLinesCount);
+    });
+}
+
+const shrinkLinkNotes = (linkNotes, decreaseLinesCount) => {
+    const newLineLength = linkNotes[0].length - decreaseLinesCount;
+    return linkNotes.map(columns => {
+        let newColumns = columns.slice(0, newLineLength);
+        for(let lineIndex = 0; lineIndex < newColumns.length; lineIndex++) {
+            const point = newColumns[lineIndex];
+            if (point !== null && point.refY >= newLineLength) {
+                newColumns[lineIndex] = null;
+            }
+        }
+        return newColumns;
+    });
+}
+
 const difficultyState = difficulty.MM;
 const initialLines = 8;
 const basicNoteDiameter = 32
@@ -446,12 +490,23 @@ const actions = {
         }
         return { linkNotes: createLink(state.linkNotes, x1, y1, x2, y2), linkEdit: {isEditting: false, startPoint: null} };
   }
+  , changeLines: ({beforeLinesCount, afterLinesCount}) => state => {
+      if(beforeLinesCount === afterLinesCount) {
+          return {};
+      }
+      if (beforeLinesCount < afterLinesCount) {
+          const increaseLinesCount = afterLinesCount - beforeLinesCount;
+          return { lines:afterLinesCount, notes: extendNotes(state.notes, increaseLinesCount), linkNotes: extendLinkNotes(state.linkNotes, increaseLinesCount)};
+      }
+      const decreaseLinesCount = beforeLinesCount - afterLinesCount;
+      return { lines:afterLinesCount, notes: shrinkNotes(state.notes, decreaseLinesCount), linkNotes: shrinkLinkNotes(state.linkNotes, decreaseLinesCount)};
+  }
 }
 
 const calculateCX = x => basicNoteDiameter * (x * 2 + 1);
 const calculateCY = y => basicNoteDiameter * (y + 1);
-const calculateSvgWith = () => calculateCX(state.difficulty.columns);
-const calculateSvgHeight = () => calculateCY(state.lines);
+const calculateSvgWith = (state) => calculateCX(state.difficulty.columns);
+const calculateSvgHeight = (state) => calculateCY(state.lines);
 
 const Note = ({x, y, type, size}) => (
     <circle cx={calculateCX(x)} 
@@ -658,11 +713,15 @@ const view = (state, actions) => (
         </select>
       </div>
       <div>
+        <span>譜面の行数</span>
+        <input type="number" value={state.lines} onchange={e => actions.changeLines({beforeLinesCount: state.lines, afterLinesCount: parseInt(e.target.value)})}/>
+      </div>
+      <div>
         <LinkEditButton isEditting={state.linkEdit.isEditting} actions={actions} />
         <LinkEditMessage isEditting={state.linkEdit.isEditting} isStart={state.linkEdit.startPoint === null} />
       </div>
     </div>
-    <svg id="score" class={state.showPlaceholder ? 'showPlaceholder' : ''} width={calculateSvgWith()} height={calculateSvgHeight()} viewBox={'0 0 ' + calculateSvgWith() + ' ' + calculateSvgHeight()}
+    <svg id="score" class={state.showPlaceholder ? 'showPlaceholder' : ''} width={calculateSvgWith(state)} height={calculateSvgHeight(state)} viewBox={'0 0 ' + calculateSvgWith(state) + ' ' + calculateSvgHeight(state)}
          xmlns="http://www.w3.org/2000/svg" version="1.1">
          {state.linkNotes.map((columns, columnIndex) => columns.map((point, lineIndex) => renderLink(columnIndex, lineIndex, point)))}
          {state.notes.map(columns => columns.map(point => renderNote(point, actions, state)))}
