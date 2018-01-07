@@ -768,7 +768,6 @@ const downloadAsImage = () => {
         ctx.drawImage( image, 0, 0 );
         let a = document.getElementById('download');
         const data = canvas.toDataURL("image/png");
-        console.log(data);
         a.href = data;
     }
     const src = "data:image/svg+xml;charset=utf-8;base64," + btoa(unescape(encodeURIComponent(svgData)));
