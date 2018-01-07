@@ -527,6 +527,8 @@ const getHandler = (x, y, actions, state) => {
 
 const Placeholder = ({x, y, type, actions}) => (
     <circle id={'x:' + x +'-y:' + y}
+        fill="#fff"
+        fill-opacity="0"
         cx={calculateCX(x)} 
         cy={calculateCY(y)}
         r={basicNoteDiameter / 2}
@@ -535,7 +537,10 @@ const Placeholder = ({x, y, type, actions}) => (
 );
 
 const SingleNote = ({x, y, type, actions, state}) => (
-    <g onclick={getHandler(x, y, actions, state)}>
+    <g onclick={getHandler(x, y, actions, state)}
+      fill="#f66"
+      stroke="#000"
+      stroke-width="1px">
       <Note x={x}
         y={y} 
         type={type}
@@ -544,7 +549,10 @@ const SingleNote = ({x, y, type, actions, state}) => (
 );
 
 const LargeNote = ({x, y, type, actions, state}) => (
-    <g onclick={getHandler(x, y, actions, state)}>
+    <g onclick={getHandler(x, y, actions, state)}
+      fill="#f66"
+      stroke="#000"
+      stroke-width="2px">
       <Note x={x}
         y={y} 
         type={type}
@@ -554,60 +562,105 @@ const LargeNote = ({x, y, type, actions, state}) => (
 );
 
 const RightNote = ({x, y, type, actions, state}) => (
-    <g onclick={getHandler(x, y, actions, state)}>
+    <g onclick={getHandler(x, y, actions, state)}
+      fill="#da0"
+      stroke="#000"
+      stroke-width="2px">
       <Note x={x}
         y={y} 
         type={type}
         size={largeNoteSize} />
-      <line x1={calculateCX(x) - largeNoteSize * 0.7}
+      <line 
+        stroke="#fff"
+        stroke-width="3px"
+        stroke-linecap="round"
+        x1={calculateCX(x) - largeNoteSize * 0.7}
         y1={calculateCY(y)}
         x2={calculateCX(x) + largeNoteSize * 0.7}
         y2={calculateCY(y)}/>
-      <line x1={calculateCX(x) + largeNoteSize * 0.7}
+      <line 
+        stroke="#fff"
+        stroke-width="3px"
+        stroke-linecap="round"
+        x1={calculateCX(x) + largeNoteSize * 0.7}
         y1={calculateCY(y)}
         x2={calculateCX(x)}
         y2={calculateCY(y) - largeNoteSize * 0.7}/>
-      <line x1={calculateCX(x) + largeNoteSize * 0.7}
+      <line 
+        stroke="#fff"
+        stroke-width="3px"
+        stroke-linecap="round"
+        x1={calculateCX(x) + largeNoteSize * 0.7}
         y1={calculateCY(y)}
         x2={calculateCX(x)}
         y2={calculateCY(y) + largeNoteSize * 0.7}/>
     </g>
 );
 const LeftNote = ({x, y, type, actions, state}) => (
-    <g onclick={getHandler(x, y, actions, state)}>
+    <g onclick={getHandler(x, y, actions, state)}
+      fill="#0ad"
+      stroke="#000"
+      stroke-width="2px">
       <Note x={x}
         y={y} 
         type={type}
         size={largeNoteSize} />
-      <line x1={calculateCX(x) - largeNoteSize * 0.7}
+      <line
+        stroke="#fff"
+        stroke-width="3px"
+        stroke-linecap="round"
+        x1={calculateCX(x) - largeNoteSize * 0.7}
         y1={calculateCY(y)}
         x2={calculateCX(x) + largeNoteSize * 0.7}
         y2={calculateCY(y)}/>
-      <line x1={calculateCX(x) - largeNoteSize * 0.7}
+      <line
+        stroke="#fff"
+        stroke-width="3px"
+        stroke-linecap="round"
+        x1={calculateCX(x) - largeNoteSize * 0.7}
         y1={calculateCY(y)}
         x2={calculateCX(x)}
         y2={calculateCY(y) - largeNoteSize * 0.7}/>
-      <line x1={calculateCX(x) - largeNoteSize * 0.7}
+      <line
+        stroke="#fff"
+        stroke-width="3px"
+        stroke-linecap="round"
+        x1={calculateCX(x) - largeNoteSize * 0.7}
         y1={calculateCY(y)}
         x2={calculateCX(x)}
         y2={calculateCY(y) + largeNoteSize * 0.7}/>
     </g>
 );
 const UpNote = ({x, y, type, actions, state}) => (
-    <g onclick={getHandler(x, y, actions, state)}>
+    <g onclick={getHandler(x, y, actions, state)}
+      fill="#494"
+      stroke="#000"
+      stroke-width="2px">
       <Note x={x}
         y={y} 
         type={type}
         size={largeNoteSize} />
-      <line x1={calculateCX(x)}
+      <line 
+        stroke="#fff"
+        stroke-width="3px"
+        stroke-linecap="round"
+        x1={calculateCX(x)}
         y1={calculateCY(y) - largeNoteSize * 0.7}
         x2={calculateCX(x)}
         y2={calculateCY(y) + largeNoteSize * 0.7}/>
-      <line x1={calculateCX(x)}
+      <line
+        stroke="#fff"
+        stroke-width="3px"
+        stroke-linecap="round"
+        x1={calculateCX(x)}
         y1={calculateCY(y) - largeNoteSize * 0.7}
         x2={calculateCX(x) + largeNoteSize * 0.7}
         y2={calculateCY(y)}/>
-      <line x1={calculateCX(x)}
+      <line 
+        stroke="#fff"
+        stroke-width="3px"
+        stroke-linecap="round"
+        x1={calculateCX(x)}
         y1={calculateCY(y) - largeNoteSize * 0.7}
         x2={calculateCX(x) - largeNoteSize * 0.7}
         y2={calculateCY(y)}/>
@@ -677,6 +730,9 @@ const renderLink = (x, y, point) => {
         return null;
     }
     return <line class="longNotes"
+        stroke="rgb(218, 221, 51)"
+        stroke-width="15px"
+        stroke-linecap="round"
         x1={calculateCX(x)}
         y1={calculateCY(y)}
         x2={calculateCX(point.refX)}
